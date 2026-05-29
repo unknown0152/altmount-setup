@@ -1,0 +1,55 @@
+webdav:
+  port: 8080
+  user: usenet
+  password: __WEBDAV_PASSWORD__
+  host: ""
+api:
+  prefix: /api
+  key_override: ""
+  allowed_origins: []
+auth:
+  login_required: false
+database:
+  type: sqlite
+  path: /config/altmount.db
+  dsn: ""
+metadata:
+  root_path: /data/metadata
+  delete_source_nzb_on_removal: false
+  delete_completed_nzb: false
+  backup:
+    enabled: true
+    schedule: 0 3 * * *
+    keep_backups: 10
+    path: /config/backups
+streaming:
+  max_prefetch: 100
+  max_size_gb: 80
+  expiry_hours: 168
+  failure_masking:
+    enabled: true
+    threshold: 3
+health:
+  enabled: true
+  library_dir: /media
+  cleanup_orphaned_metadata: true
+  check_interval_seconds: 30
+  max_concurrent_jobs: 1
+  segment_sample_percentage: 5
+  max_retries: 0
+  library_sync_interval_minutes: 120
+  resolve_repair_on_import: true
+  repair:
+    enabled: true
+    interval_minutes: 60
+    max_cooldown_hours: 24
+    max_repair_retries: 0
+    exponential_backoff: true
+__PROVIDERS_BLOCK__
+arrs:
+  enabled: true
+  max_workers: 10
+  radarr_instances:
+__RADARR_INSTANCES__
+  sonarr_instances:
+__SONARR_INSTANCES__
