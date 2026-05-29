@@ -24,11 +24,12 @@ metadata:
     path: /config/backups
 streaming:
   max_prefetch: 100
-  max_size_gb: 80
-  expiry_hours: 168
   failure_masking:
     enabled: true
     threshold: 3
+segment_cache:
+  max_size_gb: 80
+  expiry_hours: 168
 health:
   enabled: true
   library_dir: /media
@@ -46,6 +47,8 @@ health:
     max_repair_retries: 0
     exponential_backoff: true
 __PROVIDERS_BLOCK__
+import:
+  import_dir: /mnt/altmount-import
 arrs:
   enabled: true
   max_workers: 10
