@@ -38,3 +38,9 @@ for k, v in [
 sys.stdout.write(text)
 PY
 }
+
+render::compose_cosmos() {
+  # Args: tmpl, network, config_dir, data_dir, media_dir, mount_dir, uid, gid, tz, jwt
+  # Cosmos compose has same token set as docker compose, so delegate
+  render::compose_docker "$@"
+}

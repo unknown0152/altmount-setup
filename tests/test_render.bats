@@ -35,3 +35,12 @@ setup() {
   [[ "$out" == *"/mnt/altmount:/mnt/altmount:rshared"* ]]
   [[ "$out" != *"__"* ]]
 }
+
+@test "render::compose_cosmos produces valid JSON with substitutions" {
+  out=$(render::compose_cosmos "$SCRIPT_DIR/templates/cosmos-compose.json.tmpl" \
+    media-stack /srv/config/altmount /srv/data/altmount /srv/media /mnt/altmount \
+    1000 1000 Europe/Copenhagen deadbeefjwt)
+  echo "$out" | python3 -c "import sys,json; json.load(sys.stdin)"
+  [[ "$out" == *"deadbeefjwt"* ]]
+  [[ "$out" != *"__"* ]]
+}

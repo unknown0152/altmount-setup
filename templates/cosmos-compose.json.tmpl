@@ -1,0 +1,33 @@
+{
+  "services": {
+    "altmount": {
+      "container_name": "altmount",
+      "image": "ghcr.io/javi11/altmount:dev",
+      "restart": "unless-stopped",
+      "environment": [
+        "PUID=__UID__",
+        "PGID=__GID__",
+        "TZ=__TZ__",
+        "PORT=8080",
+        "JWT_SECRET=__JWT_SECRET__"
+      ],
+      "volumes": [
+        "__CONFIG_DIR__:/config",
+        "__DATA_DIR__:/data",
+        "__MEDIA_DIR__:/media",
+        "__MOUNT_DIR__:__MOUNT_DIR__:rshared"
+      ],
+      "devices": ["/dev/fuse:/dev/fuse:rwm"],
+      "cap_add": ["SYS_ADMIN"],
+      "security_opt": ["apparmor:unconfined"],
+      "labels": {
+        "cosmos-network-name": "auto",
+        "cosmos-force-network-secured": "true",
+        "cosmos-auto-update": "true",
+        "autoheal": "true"
+      },
+      "networks": { "__NETWORK__": {} }
+    }
+  },
+  "networks": { "__NETWORK__": { "external": true } }
+}
