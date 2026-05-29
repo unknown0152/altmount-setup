@@ -34,3 +34,16 @@ JSON
   assert_success
   assert_output "/srv/config/nzbdav"
 }
+
+@test "discover::arr_info parses port and api key from config.xml" {
+  run discover::arr_info "$BATS_TEST_DIRNAME/fixtures/radarr-config.xml" radarr
+  assert_success
+  assert_output --partial 'name: radarr'
+  assert_output --partial 'url: http://radarr:7878'
+  assert_output --partial 'api_key: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+}
+
+@test "discover::arr_info errors when config.xml missing" {
+  run discover::arr_info /tmp/__no_such__ radarr
+  assert_failure
+}

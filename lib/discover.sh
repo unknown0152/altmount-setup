@@ -41,3 +41,27 @@ discover::containers_by_image_prefix() {
   docker ps --format '{{.Names}} {{.Image}}' \
     | awk -v n="$needle" '$2 ~ n { print $1 }'
 }
+
+discover::arr_info() {
+  # Args: <config.xml path>, <container_name>
+  # Echoes 4 indented YAML lines: name/url/api_key/category
+  local xml=$1 name=$2
+  [[ -f "$xml" ]] || { log::error "config.xml not found: $xml"; return 1; }
+
+  local port apikey
+  port=$(python3 -c "
+import sys, xml.etree.ElementTree as ET
+print(ET.parse(sys.argv[1]).getroot().findtext('Port') or '')
+" "$xml") || return 1
+  apikey=$(python3 -c "
+import sys, xml.etree.ElementTree as ET
+print(ET.parse(sys.argv[1]).getroot().findtext('ApiKey') or '')
+" "$xml") || return 1
+
+  cat <<YAML
+    - name: $name
+      url: http://$name:$port
+      api_key: $apikey
+      category: ""
+YAML
+}
