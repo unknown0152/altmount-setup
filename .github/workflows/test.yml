@@ -1,0 +1,37 @@
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  bats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq sqlite3 python3 openssl
+      - name: Run bats tests
+        run: ./tests/bats/bin/bats tests/
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ludeeus/action-shellcheck@master
+        with:
+          severity: warning
+          scandir: '.'
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install -y jq sqlite3 python3 openssl fuse3
+      - name: Run installer in dry-run mode
+        run: ./install.sh --dry-run
