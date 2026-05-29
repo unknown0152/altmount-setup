@@ -6,40 +6,36 @@ nzbdav::import_providers() {
   local db=$1
   [[ -f "$db" ]] || { log::error "nzbdav db not found: $db"; return 1; }
 
-  local tsv
-  tsv=$(sqlite3 -separator $'\t' "$db" \
-    "SELECT ConfigName, ConfigValue FROM ConfigItems
-     WHERE ConfigName LIKE 'usenet.providers.%';" 2>/dev/null) || return 1
+  # nzbdav stores providers as a single JSON blob at key 'usenet.providers'
+  local json
+  json=$(sqlite3 "$db" \
+    "SELECT ConfigValue FROM ConfigItems
+     WHERE ConfigName = 'usenet.providers';" 2>/dev/null) || return 1
 
-  if [[ -z "$tsv" ]]; then
+  if [[ -z "$json" ]]; then
     printf 'providers: []\n'
     return 0
   fi
 
-  python3 - "$tsv" <<'PY'
-import sys, collections
+  python3 - "$json" <<'PY'
+import sys, json as _json
 
 raw = sys.argv[1]
-providers = collections.defaultdict(dict)
-for line in raw.splitlines():
-    if not line.strip():
-        continue
-    key, _, val = line.partition('\t')
-    parts = key.split('.')
-    if len(parts) < 4 or parts[0] != 'usenet' or parts[1] != 'providers':
-        continue
-    idx, field = parts[2], parts[3]
-    providers[idx][field] = val
+try:
+    data = _json.loads(raw)
+    providers = data.get('Providers', [])
+except Exception:
+    print('providers: []')
+    sys.exit(0)
 
 print('providers:')
-for idx in sorted(providers, key=lambda x: int(x) if x.isdigit() else x):
-    p = providers[idx]
-    host = p.get('host', '')
-    port = p.get('port', '119')
-    user = p.get('user', '')
-    pw   = p.get('pass', '')
-    conn = p.get('conn', '20')
-    ssl  = p.get('ssl', 'false').lower() in ('1','true','yes')
+for p in providers:
+    host = p.get('Host', '')
+    port = p.get('Port', 119)
+    user = p.get('User', '')
+    pw   = p.get('Pass', '')
+    conn = p.get('MaxConnections', 20)
+    ssl  = bool(p.get('UseSsl', False))
     print(f'  - id: ""')
     print(f'    host: {host}')
     print(f'    port: {port}')
