@@ -23,3 +23,15 @@ setup() {
   run render::config /tmp/__nope__ "providers: []" "[]" "[]" "pw"
   assert_failure
 }
+
+@test "render::compose_docker substitutes all tokens" {
+  out=$(render::compose_docker "$SCRIPT_DIR/templates/docker-compose.yml.tmpl" \
+    media-stack /srv/config/altmount /srv/data/altmount /srv/media /mnt/altmount \
+    1000 1000 Europe/Copenhagen deadbeefjwt)
+  [[ "$out" == *"PUID=1000"* ]]
+  [[ "$out" == *"PGID=1000"* ]]
+  [[ "$out" == *"JWT_SECRET=deadbeefjwt"* ]]
+  [[ "$out" == *"media-stack:"* ]]
+  [[ "$out" == *"/mnt/altmount:/mnt/altmount:rshared"* ]]
+  [[ "$out" != *"__"* ]]
+}

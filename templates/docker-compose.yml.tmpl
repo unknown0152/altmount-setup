@@ -1,0 +1,33 @@
+services:
+  altmount:
+    container_name: altmount
+    image: ghcr.io/javi11/altmount:dev
+    restart: unless-stopped
+    environment:
+      - PUID=__UID__
+      - PGID=__GID__
+      - TZ=__TZ__
+      - PORT=8080
+      - JWT_SECRET=__JWT_SECRET__
+    volumes:
+      - __CONFIG_DIR__:/config
+      - __DATA_DIR__:/data
+      - __MEDIA_DIR__:/media
+      - __MOUNT_DIR__:__MOUNT_DIR__:rshared
+    devices:
+      - /dev/fuse:/dev/fuse:rwm
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    networks:
+      __NETWORK__: {}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+networks:
+  __NETWORK__:
+    external: true
